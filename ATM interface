@@ -1,0 +1,97 @@
+import java.util.HashMap;
+import java.io.*;
+
+class Useraccount {
+    int balance;
+    int pin = 1234;
+
+    Useraccount(int bal) {
+        balance = bal;
+    }
+
+    void deposit(int amount) throws Exception {
+        if (amount < 1) {
+            throw new Exception("Invalid amount!");
+        }
+        balance += amount;
+    }
+
+    void withdraw(int amount) throws Exception {
+        if (amount > balance) {
+            throw new Exception("Insuffient balance!");
+        }
+        balance -= amount;
+    }
+
+    int getBalance() {
+        return balance;
+    }
+
+    boolean checkPin(int enteredPin) {
+        return pin == enteredPin;
+    }
+}
+
+class Useraccounts {
+    HashMap<String, Useraccount> useraccounts = new HashMap() {
+        {
+            put("X", new Useraccount(1000));
+            put("Y", new Useraccount(1000));
+        }
+    };
+
+    Useraccount getUser(String userId, int pin) throws Exception {
+        if (useraccounts.containsKey(userId)) {
+            Useraccount ua = useraccounts.get(userId);
+            if (ua.checkPin(pin)) {
+                return ua;
+            }
+        }
+        throw new Exception("UserId not found or pin incorrect!");
+    }
+}
+
+class ATM {
+    Useraccount ua;
+
+    void initOperations() {
+        try {
+            InputStreamReader isr = new InputStreamReader(System.in);
+            BufferedReader br = new BufferedReader(isr);
+            System.out.println("Enter UserId:");
+            String userId = br.readLine();
+            System.out.println("Enter Pin:");
+            int pin = Integer.parseInt(br.readLine());
+            ua = new Useraccounts().getUser(userId, pin);
+            System.out.println("Enter your choice.\n1.Check balance.\n 2.Withdraw cash\n 3.Deposit cash.\n 4.Exit.");
+            int choice = Integer.parseInt(br.readLine());
+            while (choice > 0 && choice < 4) {
+                if (choice == 1) {
+                    System.out.println("Balance is:" + ua.getBalance());
+                } else if (choice == 2) {
+                    System.out.println("Enter cash to withdraw");
+                    int amount = Integer.parseInt(br.readLine());
+                    ua.withdraw(amount);
+                    System.out.println("Withdraw Succesfull!");
+                } else if (choice == 3) {
+                    System.out.println("Enter cash to deposit");
+                    int amount = Integer.parseInt(br.readLine());
+                    ua.deposit(amount);
+                    System.out.println("Deposit Succesfull!");
+                }
+                System.out
+                        .println("Enter your choice.\n 1.Check balance.\n 2.Withdraw cash\n 3.Deposit cash.\n 4.Exit.");
+                choice = Integer.parseInt(br.readLine());
+            }
+            System.out.println("Invalid choice or exit selected.ATM Operation complete.");
+        } catch (Exception e) {
+            System.out.println("Exception raised" + e.toString());
+        }
+    }
+}
+
+class Main {
+    public static void main(String args[]) {
+        new ATM().initOperations();
+    }
+}
